@@ -4,9 +4,22 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//configure serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console(outputTemplate:
+    "[{Timestamp:HH:mm:ss} {Level:u3} {Message:lj} {NewLine} {Exception}]")
+    //.WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.MSSqlServer(
+    connectionString: builder.Configuration.GetConnectionString("UserDatabase"),
+    tableName: "Logs",
+    autoCreateSqlTable: true)
+    .CreateLogger();
 
 // Add services to the container.
 
